@@ -13,20 +13,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BookServiceTest
 {
-	private final BookService bookService = new BookService();
-	private Map<Long, Book> originalBooks;
+	private final BookService _bookService = new BookService();
+	private Map<Long, Book> _originalBooks;
 
 	@BeforeEach
 	void setUp()
 	{
-		originalBooks = new HashMap<>(BookRepository.BOOKS);
+		_originalBooks = new HashMap<>(BookRepository.BOOKS);
 	}
 
 	@AfterEach
 	void tearDown()
 	{
 		BookRepository.BOOKS.clear();
-		BookRepository.BOOKS.putAll(originalBooks);
+		BookRepository.BOOKS.putAll(_originalBooks);
 	}
 
 	@Test
@@ -34,19 +34,19 @@ class BookServiceTest
 	{
 		final int expectedSize = BookRepository.BOOKS.size();
 
-		assertThat(bookService.getAllBooks()).hasSize(expectedSize);
+		assertThat(_bookService.getAllBooks()).hasSize(expectedSize);
 	}
 
 	@Test
 	void getBookByIdReturnsBookWhenExists()
 	{
-		assertThat(bookService.getBookById(1L)).isPresent();
+		assertThat(_bookService.getBookById(1L)).isPresent();
 	}
 
 	@Test
 	void getBookByIdReturnsEmptyWhenNotExists()
 	{
-		assertThat(bookService.getBookById(999L)).isEmpty();
+		assertThat(_bookService.getBookById(999L)).isEmpty();
 	}
 
 	@Test
@@ -64,7 +64,7 @@ class BookServiceTest
 		                       .stockQuantity(12)
 		                       .build();
 
-		final Book created = bookService.createBook(input);
+		final Book created = _bookService.createBook(input);
 
 		assertThat(created.getId()).isNotNull();
 		assertThat(created.getTitle()).isEqualTo("New Book");
@@ -86,7 +86,7 @@ class BookServiceTest
 		                        .stockQuantity(5)
 		                        .build();
 
-		final var result = bookService.updateBook(1L, update);
+		final var result = _bookService.updateBook(1L, update);
 
 		assertThat(result).isPresent();
 		assertThat(result.get().getTitle()).isEqualTo("Updated Book");
@@ -98,19 +98,19 @@ class BookServiceTest
 	{
 		final Book update = Book.builder().title("Updated Book").build();
 
-		assertThat(bookService.updateBook(999L, update)).isEmpty();
+		assertThat(_bookService.updateBook(999L, update)).isEmpty();
 	}
 
 	@Test
 	void deleteBookReturnsTrueWhenExists()
 	{
-		assertThat(bookService.deleteBook(1L)).isTrue();
+		assertThat(_bookService.deleteBook(1L)).isTrue();
 		assertThat(BookRepository.BOOKS).doesNotContainKey(1L);
 	}
 
 	@Test
 	void deleteBookReturnsFalseWhenNotExists()
 	{
-		assertThat(bookService.deleteBook(999L)).isFalse();
+		assertThat(_bookService.deleteBook(999L)).isFalse();
 	}
 }

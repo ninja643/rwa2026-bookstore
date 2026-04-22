@@ -13,20 +13,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UserServiceTest
 {
-	private final UserService userService = new UserService();
-	private Map<Long, User> originalUsers;
+	private final UserService _userService = new UserService();
+	private Map<Long, User> _originalUsers;
 
 	@BeforeEach
 	void setUp()
 	{
-		originalUsers = new HashMap<>(UserRepository.USERS);
+		_originalUsers = new HashMap<>(UserRepository.USERS);
 	}
 
 	@AfterEach
 	void tearDown()
 	{
 		UserRepository.USERS.clear();
-		UserRepository.USERS.putAll(originalUsers);
+		UserRepository.USERS.putAll(_originalUsers);
 	}
 
 	@Test
@@ -34,19 +34,19 @@ class UserServiceTest
 	{
 		final int expectedSize = UserRepository.USERS.size();
 
-		assertThat(userService.getAllUsers()).hasSize(expectedSize);
+		assertThat(_userService.getAllUsers()).hasSize(expectedSize);
 	}
 
 	@Test
 	void getUserByIdReturnsUserWhenExists()
 	{
-		assertThat(userService.getUserById(1L)).isPresent();
+		assertThat(_userService.getUserById(1L)).isPresent();
 	}
 
 	@Test
 	void getUserByIdReturnsEmptyWhenNotExists()
 	{
-		assertThat(userService.getUserById(999L)).isEmpty();
+		assertThat(_userService.getUserById(999L)).isEmpty();
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class UserServiceTest
 		                       .phoneNumber("123456")
 		                       .build();
 
-		final User created = userService.createUser(input);
+		final User created = _userService.createUser(input);
 
 		assertThat(created.getId()).isNotNull();
 		assertThat(created.getUsername()).isEqualTo("new-user");
@@ -78,7 +78,7 @@ class UserServiceTest
 		                        .phoneNumber("999")
 		                        .build();
 
-		final var result = userService.updateUser(1L, update);
+		final var result = _userService.updateUser(1L, update);
 
 		assertThat(result).isPresent();
 		assertThat(result.get().getUsername()).isEqualTo("updated");
@@ -90,19 +90,19 @@ class UserServiceTest
 	{
 		final User update = User.builder().username("updated").build();
 
-		assertThat(userService.updateUser(999L, update)).isEmpty();
+		assertThat(_userService.updateUser(999L, update)).isEmpty();
 	}
 
 	@Test
 	void deleteUserReturnsTrueWhenExists()
 	{
-		assertThat(userService.deleteUser(1L)).isTrue();
+		assertThat(_userService.deleteUser(1L)).isTrue();
 		assertThat(UserRepository.USERS).doesNotContainKey(1L);
 	}
 
 	@Test
 	void deleteUserReturnsFalseWhenNotExists()
 	{
-		assertThat(userService.deleteUser(999L)).isFalse();
+		assertThat(_userService.deleteUser(999L)).isFalse();
 	}
 }
