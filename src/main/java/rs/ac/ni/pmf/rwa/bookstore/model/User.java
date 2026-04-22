@@ -4,6 +4,8 @@ import lombok.*;
 
 @Value
 @Builder
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class User
 {
 	Long id;
