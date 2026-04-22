@@ -1,10 +1,11 @@
 package rs.ac.ni.pmf.rwa.bookstore.model;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
 @Value
 @Builder
+@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class Book
 {
 	Long id;
