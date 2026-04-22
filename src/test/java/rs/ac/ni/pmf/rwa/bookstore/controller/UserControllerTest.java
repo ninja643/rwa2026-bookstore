@@ -46,7 +46,7 @@ class UserControllerTest
 	{
 		when(_userService.getUserById(1L)).thenReturn(Optional.of(TestData.USERS.ADMIN));
 
-		_mockMvc.perform(get("/api/v1/books/1"))
+		_mockMvc.perform(get("/api/v1/users/1"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value(TestData.USERS.ADMIN.getUsername()));
 
