@@ -1,6 +1,7 @@
 package rs.ac.ni.pmf.rwa.bookstore.service;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rs.ac.ni.pmf.rwa.bookstore.model.User;
@@ -62,9 +63,11 @@ class UserServiceTest
 
 		final User created = _userService.createUser(input);
 
-		assertThat(created.getId()).isNotNull();
+		final Long createdId = created.getId();
+
+		assertThat(createdId).isNotNull();
 		assertThat(created.getUsername()).isEqualTo("new-user");
-		assertThat(UserRepository.USERS.get(created.getId())).isEqualTo(created);
+		assertThat(UserRepository.USERS.get(createdId)).isEqualTo(created);
 	}
 
 	@Test

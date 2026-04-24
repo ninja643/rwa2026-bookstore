@@ -52,4 +52,11 @@ class UserControllerTest
 
 		verify(_userService).getUserById(1L);
 	}
+
+	@Test
+	void shouldReturn404WhenUserNotFound() throws Exception
+	{
+		_mockMvc.perform(get("/api/v1/users/999"))
+				.andExpect(status().isNotFound());
+	}
 }
