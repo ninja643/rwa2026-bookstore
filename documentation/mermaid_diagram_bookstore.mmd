@@ -1,0 +1,140 @@
+erDiagram
+
+    USER ||--o{ ORDER : places
+    ORDER ||--|{ ORDER_ITEM : contains
+    BOOK ||--o{ ORDER_ITEM : included_in
+
+    ORDER ||--o{ PAYMENT : has
+    ORDER ||--|| ADDRESS : shipped_to
+
+    USER ||--o{ REVIEW : writes
+    BOOK ||--o{ REVIEW : receives
+
+    BOOK }o--o{ AUTHOR : written_by
+    BOOK }o--|| PUBLISHER : published_by
+    BOOK }o--o{ CATEGORY : categorized_as
+
+    USER ||--|| CART : owns
+    CART ||--|{ CART_ITEM : contains
+    BOOK ||--o{ CART_ITEM : added_to
+
+    ORDER ||--o{ COUPON : uses
+
+    BOOK ||--o{ BOOK_IMAGE : has
+    BOOK ||--o{ INVENTORY_LOG : tracked_by
+
+    USER }o--|| ROLE : has
+
+    USER {
+        Long id
+        String first_name
+        String last_name
+        String email
+        String password_hash
+        String phone
+        Date registration_date
+    }
+
+    ROLE {
+        Long id
+        String name
+    }
+
+    AUTHOR {
+        Long id
+        String first_name
+        String last_name
+        String biography
+    }
+
+    PUBLISHER {
+        Long id
+        String name
+        String city
+        String country
+    }
+
+    CATEGORY {
+        Long id
+        String name
+        String description
+    }
+
+    BOOK {
+        Long id
+        String title
+        String isbn
+        Integer publication_year
+        Double price
+        Integer stock_quantity
+        String description
+    }
+
+    BOOK_IMAGE {
+        Long id
+        String url
+        Boolean is_primary
+    }
+
+    INVENTORY_LOG {
+        Long id
+        Integer change_amount
+        String reason
+        Date change_date
+    }
+
+    ORDER {
+        Long id
+        Date order_date
+        String status
+        Double total_price
+    }
+
+    ORDER_ITEM {
+        Long id
+        Integer quantity
+        Double price_at_purchase
+    }
+
+    PAYMENT {
+        Long id
+        String payment_method
+        String status
+        Date payment_date
+        Double amount
+    }
+
+    ADDRESS {
+        Long id
+        String street
+        String city
+        String postal_code
+        String country
+    }
+
+    REVIEW {
+        Long id
+        Integer rating
+        String comment
+        Date review_date
+    }
+
+    CART {
+        Long id
+        Date created_at
+    }
+
+    CART_ITEM {
+        Long id
+        Integer quantity
+    }
+
+    COUPON {
+        Long id
+        String code
+        Double discount_value
+        String discount_type
+        Date valid_from
+        Date valid_to
+    }
+
