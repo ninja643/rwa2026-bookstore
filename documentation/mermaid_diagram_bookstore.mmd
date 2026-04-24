@@ -23,16 +23,34 @@ erDiagram
     BOOK ||--o{ BOOK_IMAGE : has
     BOOK ||--o{ INVENTORY_LOG : tracked_by
 
-    USER }o--|| ROLE : has
+    USER }o--o{ ROLE : has
+    ROLE }o--o{ PERMISSION : grants
+
+    USER ||--o{ USER_ROLE : assigned
+    ROLE ||--o{ USER_ROLE : included_in
+
+    ROLE ||--o{ ROLE_PERMISSION : assigned
+    PERMISSION ||--o{ ROLE_PERMISSION : included_in
+
+    BOOK ||--o{ BOOK_AUTHOR : linked
+    AUTHOR ||--o{ BOOK_AUTHOR : linked
+
+    BOOK ||--o{ BOOK_CATEGORY : linked
+    CATEGORY ||--o{ BOOK_CATEGORY : linked
+
+    ORDER ||--o{ ORDER_COUPON : linked
+    COUPON ||--o{ ORDER_COUPON : linked
 
     USER {
         Long id
         String first_name
         String last_name
         String email
-        String password_hash
+        String password
+        String username
         String phone
         Date registration_date
+        Date created_at
     }
 
     ROLE {
@@ -40,11 +58,32 @@ erDiagram
         String name
     }
 
+    PERMISSION {
+        Long id
+        String name
+        String description
+    }
+
+    USER_ROLE {
+        Long user_id
+        Long role_id
+    }
+
+    ROLE_PERMISSION {
+        Long role_id
+        Long permission_id
+    }
+
     AUTHOR {
         Long id
         String first_name
         String last_name
         String biography
+    }
+
+    BOOK_AUTHOR {
+        Long book_id
+        Long author_id
     }
 
     PUBLISHER {
@@ -60,6 +99,11 @@ erDiagram
         String description
     }
 
+    BOOK_CATEGORY {
+        Long book_id
+        Long category_id
+    }
+
     BOOK {
         Long id
         String title
@@ -68,40 +112,39 @@ erDiagram
         Double price
         Integer stock_quantity
         String description
+        Long publisher_id
+        Date created_at
+        Date updated_at
     }
 
     BOOK_IMAGE {
         Long id
+        Long book_id
         String url
         Boolean is_primary
     }
 
     INVENTORY_LOG {
         Long id
+        Long book_id
         Integer change_amount
         String reason
         Date change_date
+        Date created_at
+        Date updated_at
     }
 
-    ORDER {
+    CART {
         Long id
-        Date order_date
-        String status
-        Double total_price
+        Long user_id
+        Date created_at
     }
 
-    ORDER_ITEM {
+    CART_ITEM {
         Long id
+        Long cart_id
+        Long book_id
         Integer quantity
-        Double price_at_purchase
-    }
-
-    PAYMENT {
-        Long id
-        String payment_method
-        String status
-        Date payment_date
-        Double amount
     }
 
     ADDRESS {
@@ -112,21 +155,32 @@ erDiagram
         String country
     }
 
-    REVIEW {
+    ORDER {
         Long id
-        Integer rating
-        String comment
-        Date review_date
-    }
-
-    CART {
-        Long id
+        Long user_id
+        Long address_id
+        Date order_date
+        String status
+        Double total_price
         Date created_at
+        Date updated_at
     }
 
-    CART_ITEM {
+    ORDER_ITEM {
         Long id
+        Long order_id
+        Long book_id
         Integer quantity
+        Double price_at_purchase
+    }
+
+    PAYMENT {
+        Long id
+        Long order_id
+        String payment_method
+        String status
+        Date payment_date
+        Double amount
     }
 
     COUPON {
@@ -138,3 +192,16 @@ erDiagram
         Date valid_to
     }
 
+    ORDER_COUPON {
+        Long order_id
+        Long coupon_id
+    }
+
+    REVIEW {
+        Long id
+        Long user_id
+        Long book_id
+        Integer rating
+        String comment
+        Date review_date
+    }
