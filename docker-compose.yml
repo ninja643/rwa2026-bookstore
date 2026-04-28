@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mariadb:11.4
+    ports:
+      - "3306:3306"
+    container_name: bookstore-db-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root.123
+      MYSQL_DATABASE: bookstore
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin.123
+    restart: unless-stopped
+    volumes:
+      - bookstore-db-volume:/var/lib/mysql
+
+volumes:
+  bookstore-db-volume:
