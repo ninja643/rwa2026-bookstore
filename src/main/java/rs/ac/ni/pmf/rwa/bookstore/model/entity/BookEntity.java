@@ -31,29 +31,12 @@ public class BookEntity
 	@Column(unique = true, length = 20)
 	private String isbn;
 
-	@Column(name = "publication_year")
-	private Integer publicationYear;
-
 	@Column(nullable = false, precision = 10, scale = 2)
 	private BigDecimal price;
-
-	@Column(name = "stock_quantity", nullable = false)
-	private Integer stockQuantity;
-
-	@Column(columnDefinition = "TEXT")
-	private String description;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "publisher_id")
 	private PublisherEntity publisher;
-
-	@CreationTimestamp
-	@Column(name = "created_at", nullable = false, updatable = false)
-	private LocalDateTime createdAt;
-
-	@UpdateTimestamp
-	@Column(name = "updated_at", nullable = false)
-	private LocalDateTime updatedAt;
 
 	@ManyToMany
 	@JoinTable(
@@ -63,17 +46,4 @@ public class BookEntity
 	)
 	@Builder.Default
 	private Set<AuthorEntity> authors = new HashSet<>();
-
-	@ManyToMany
-	@JoinTable(
-			name = "book_categories",
-			joinColumns = @JoinColumn(name = "book_id"),
-			inverseJoinColumns = @JoinColumn(name = "category_id")
-	)
-	@Builder.Default
-	private Set<CategoryEntity> categories = new HashSet<>();
-
-	@OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-	@Builder.Default
-	private List<BookImageEntity> images = new ArrayList<>();
 }
