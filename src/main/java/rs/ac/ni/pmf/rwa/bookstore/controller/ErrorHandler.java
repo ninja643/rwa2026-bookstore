@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import rs.ac.ni.pmf.rwa.bookstore.exception.ResourceNotFoundException;
-import rs.ac.ni.pmf.rwa.bookstore.model.ErrorDto;
+import rs.ac.ni.pmf.rwa.bookstore.model.dto.ErrorDto;
 
 import java.time.OffsetDateTime;
 

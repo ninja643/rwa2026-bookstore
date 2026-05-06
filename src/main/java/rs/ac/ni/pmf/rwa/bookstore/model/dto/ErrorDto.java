@@ -1,4 +1,4 @@
-package rs.ac.ni.pmf.rwa.bookstore.model;
+package rs.ac.ni.pmf.rwa.bookstore.model.dto;
 
 import lombok.Builder;
 import lombok.Value;
