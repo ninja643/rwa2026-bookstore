@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import rs.ac.ni.pmf.rwa.bookstore.model.User;
 import rs.ac.ni.pmf.rwa.bookstore.model.UserDto;
 import rs.ac.ni.pmf.rwa.bookstore.service.UserService;
 
