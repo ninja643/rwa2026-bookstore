@@ -2,6 +2,8 @@ package rs.ac.ni.pmf.rwa.bookstore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import rs.ac.ni.pmf.rwa.bookstore.model.PaymentMethod;
+import rs.ac.ni.pmf.rwa.bookstore.model.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,15 +25,17 @@ public class PaymentEntity
 	@JoinColumn(name = "order_id", nullable = false)
 	private OrderEntity order;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "payment_method", length = 50)
-	private String paymentMethod;
+	private PaymentMethod paymentMethod;
 
+	@Enumerated(EnumType.STRING)
 	@Column(length = 50)
-	private String status;
+	private PaymentStatus status;
 
 	@Column(name = "payment_date")
 	private LocalDateTime paymentDate;
 
-	@Column(precision = 10, scale = 2)
+	@Column(nullable = false, precision = 10, scale = 2)
 	private BigDecimal amount;
 }

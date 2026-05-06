@@ -16,7 +16,11 @@ public class AddressEntity
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(length = 255)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private UserEntity user;
+
+	@Column
 	private String street;
 
 	@Column(length = 100)

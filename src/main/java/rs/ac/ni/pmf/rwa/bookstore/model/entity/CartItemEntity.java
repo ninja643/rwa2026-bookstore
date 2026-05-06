@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "cart_items")
+@Table(
+		name = "cart_items",
+		uniqueConstraints = @UniqueConstraint(
+				name = "uq_cart_item_book",
+				columnNames = {"cart_id", "book_id"}
+		)
+)
 @Getter
 @Setter
 @NoArgsConstructor

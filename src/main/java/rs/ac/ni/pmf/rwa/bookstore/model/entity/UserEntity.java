@@ -5,7 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,7 +32,7 @@ public class UserEntity
 	@Column(nullable = false, unique = true, length = 150)
 	private String email;
 
-	@Column(nullable = false, length = 255)
+	@Column(nullable = false)
 	private String password;
 
 	@Column(nullable = false, unique = true, length = 100)
@@ -39,14 +41,11 @@ public class UserEntity
 	@Column(length = 50)
 	private String phone;
 
-	@Column(name = "registration_date", nullable = false)
-	private LocalDateTime registrationDate;
-
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(
 			name = "user_roles",
 			joinColumns = @JoinColumn(name = "user_id"),
@@ -54,6 +53,10 @@ public class UserEntity
 	)
 	@Builder.Default
 	private Set<RoleEntity> roles = new HashSet<>();
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<AddressEntity> addresses = new ArrayList<>();
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 	private CartEntity cart;

@@ -26,9 +26,9 @@ public class RoleEntity
 	@Builder.Default
 	private Set<UserEntity> users = new HashSet<>();
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(
-			name = "role_permissions",
+			name = "roles_permissions",
 			joinColumns = @JoinColumn(name = "role_id"),
 			inverseJoinColumns = @JoinColumn(name = "permission_id")
 	)

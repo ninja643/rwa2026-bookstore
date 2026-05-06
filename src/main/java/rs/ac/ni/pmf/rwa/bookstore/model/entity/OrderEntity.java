@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import rs.ac.ni.pmf.rwa.bookstore.model.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,11 +34,9 @@ public class OrderEntity
 	@JoinColumn(name = "address_id", nullable = false)
 	private AddressEntity address;
 
-	@Column(name = "order_date", nullable = false)
-	private LocalDateTime orderDate;
-
+	@Enumerated(EnumType.STRING)
 	@Column(length = 50)
-	private String status;
+	private OrderStatus status;
 
 	@Column(name = "total_price", precision = 10, scale = 2)
 	private BigDecimal totalPrice;

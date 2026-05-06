@@ -2,11 +2,18 @@ package rs.ac.ni.pmf.rwa.bookstore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(
+		name = "reviews",
+		uniqueConstraints = @UniqueConstraint(
+				name = "uq_review_user_book",
+				columnNames = {"user_id", "book_id"}
+		)
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,6 +39,7 @@ public class ReviewEntity
 	@Column(columnDefinition = "TEXT")
 	private String comment;
 
-	@Column(name = "review_date")
+	@CreationTimestamp
+	@Column(name = "review_date", nullable = false, updatable = false)
 	private LocalDateTime reviewDate;
 }

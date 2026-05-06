@@ -43,8 +43,8 @@ CREATE TABLE user_roles
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- ROLE_PERMISSIONS (M:N)
-CREATE TABLE role_permissions
+-- ROLES_PERMISSIONS (M:N)
+CREATE TABLE roles_permissions
 (
     role_id       BIGINT NOT NULL,
     permission_id BIGINT NOT NULL,
