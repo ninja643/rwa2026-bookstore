@@ -2,7 +2,9 @@ package rs.ac.ni.pmf.rwa.bookstore.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import rs.ac.ni.pmf.rwa.bookstore.model.User;
+import rs.ac.ni.pmf.rwa.bookstore.mapper.UserMapper;
+import rs.ac.ni.pmf.rwa.bookstore.model.UserDto;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.UserEntity;
 import rs.ac.ni.pmf.rwa.bookstore.repository.UserRepository;
 
 import java.util.List;
@@ -12,54 +14,66 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService
 {
-	public List<User> getAllUsers()
+	private final UserRepository _userRepository;
+	private final UserMapper _userMapper;
+
+	public List<UserDto> getAllUsers()
 	{
-		return UserRepository.USERS.values().stream().toList();
+		return _userRepository.findAll().stream()
+		                      .map(_userMapper::toDto)
+		                      .toList();
 	}
 
-	public Optional<User> getUserById(final Long id)
+	public Optional<UserDto> getUserById(final Long id)
 	{
-		return Optional.ofNullable(UserRepository.USERS.get(id));
+		return _userRepository.findById(id)
+		                      .map(_userMapper::toDto);
 	}
 
-	public User createUser(final User user)
-	{
-		final Long id = UserRepository.nextId();
-		final User createdUser = User.builder()
-		                             .id(id)
-		                             .username(user.getUsername())
-		                             .firstName(user.getFirstName())
-		                             .lastName(user.getLastName())
-		                             .email(user.getEmail())
-		                             .phoneNumber(user.getPhoneNumber())
-		                             .build();
+//	public UserDto createUser(final UserDto user)
+//	{
+//		final UserDto createdUser = UserDto.builder()
+//		                                   .username(user.getUsername())
+//		                                   .firstName(user.getFirstName())
+//		                                   .lastName(user.getLastName())
+//		                                   .email(user.getEmail())
+//		                                   .phoneNumber(user.getPhoneNumber())
+//		                                   .build();
+//
+//		_userRepository.;
+//		return createdUser;
+//	}
 
-		UserRepository.USERS.put(id, createdUser);
-		return createdUser;
-	}
-
-	public Optional<User> updateUser(final Long id, final User user)
+	public Optional<UserDto> updateUser(final Long id, final UserDto user)
 	{
-		if (!UserRepository.USERS.containsKey(id))
+		final Optional<UserEntity> optionalExistingUser = _userRepository.findById(id);
+
+		if (optionalExistingUser.isEmpty())
 		{
 			return Optional.empty();
 		}
 
-		final User updatedUser = User.builder()
-		                             .id(id)
-		                             .username(user.getUsername())
-		                             .firstName(user.getFirstName())
-		                             .lastName(user.getLastName())
-		                             .email(user.getEmail())
-		                             .phoneNumber(user.getPhoneNumber())
-		                             .build();
+		final UserEntity existingUser = optionalExistingUser.get();
 
-		UserRepository.USERS.put(id, updatedUser);
-		return Optional.of(updatedUser);
+		existingUser.setUsername(user.getUsername());
+		existingUser.setFirstName(user.getFirstName());
+		existingUser.setLastName(user.getLastName());
+		existingUser.setEmail(user.getEmail());
+		existingUser.setPhone(user.getPhoneNumber());
+
+		final UserEntity savedUser = _userRepository.save(existingUser);
+
+		return Optional.of(savedUser)
+		               .map(_userMapper::toDto);
 	}
 
-	public boolean deleteUser(final Long id)
+	public void deleteUser(final Long id)
 	{
-		return UserRepository.USERS.remove(id) != null;
+		_userRepository.deleteById(id);
+	}
+
+	public Optional<UserDto> getUserByUsername(final String username)
+	{
+		return _userRepository.findByUsername(username).map(_userMapper::toDto);
 	}
 }

@@ -1,37 +1,18 @@
 package rs.ac.ni.pmf.rwa.bookstore.repository;
 
-import rs.ac.ni.pmf.rwa.bookstore.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.UserEntity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
-public class UserRepository
+public interface UserRepository extends JpaRepository<UserEntity, Long>
 {
-	public static Map<Long, User> USERS = new HashMap<>();
+	Optional<UserEntity> findByUsername(String username);
 
-	static
-	{
-		USERS.put(1L, User.builder()
-		                  .id(1L)
-		                  .username("admin")
-		                  .firstName("admin")
-		                  .lastName("admin")
-		                  .build());
+	List<UserEntity> findAllByUsernameContaining(String username);
 
-		USERS.put(2L, User.builder()
-		                  .id(2L)
-		                  .username("user")
-		                  .firstName("user")
-		                  .lastName("user")
-		                  .build());
-	}
+	List<UserEntity> findAllByFirstNameStartingWithAndLastNameStartingWith(String firstName, String lastName);
 
-	public static Long nextId()
-	{
-		return USERS.keySet()
-		            .stream()
-		            .max(Long::compareTo)
-		            .map(id -> id + 1)
-		            .orElse(1L);
-	}
+	List<UserEntity> findAllByRoles_Name(String roleName);
 }
