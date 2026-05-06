@@ -2,72 +2,115 @@ package rs.ac.ni.pmf.rwa.bookstore.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import rs.ac.ni.pmf.rwa.bookstore.model.Book;
+import rs.ac.ni.pmf.rwa.bookstore.exception.ResourceNotFoundException;
+import rs.ac.ni.pmf.rwa.bookstore.mapper.BookMapper;
+import rs.ac.ni.pmf.rwa.bookstore.model.dto.BookDto;
+import rs.ac.ni.pmf.rwa.bookstore.model.dto.BookRequestDto;
+import rs.ac.ni.pmf.rwa.bookstore.model.dto.BookSummaryDto;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.AuthorEntity;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.BookEntity;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.CategoryEntity;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.PublisherEntity;
+import rs.ac.ni.pmf.rwa.bookstore.repository.AuthorRepository;
 import rs.ac.ni.pmf.rwa.bookstore.repository.BookRepository;
+import rs.ac.ni.pmf.rwa.bookstore.repository.CategoryRepository;
+import rs.ac.ni.pmf.rwa.bookstore.repository.PublisherRepository;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class BookService
 {
-	public List<Book> getAllBooks()
+	private final BookRepository _bookRepository;
+	private final AuthorRepository _authorRepository;
+	private final PublisherRepository _publisherRepository;
+	private final CategoryRepository _categoryRepository;
+	private final BookMapper _bookMapper;
+
+	public List<BookSummaryDto> getAllBooks()
 	{
-		return BookRepository.BOOKS.values().stream().toList();
+		return _bookRepository.findAll().stream()
+		                      .map(_bookMapper::toSummaryDto)
+		                      .toList();
 	}
 
-	public Optional<Book> getBookById(final Long id)
+	public BookDto getBookById(final Long id)
 	{
-		return Optional.ofNullable(BookRepository.BOOKS.get(id));
+		return _bookRepository.findById(id)
+		                      .map(_bookMapper::toDto)
+		                      .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 	}
 
-	public Book createBook(final Book book)
+	public BookDto createBook(final BookRequestDto dto)
 	{
-		final Long id = BookRepository.nextId();
-		final Book createdBook = Book.builder()
-		                             .id(id)
-		                             .isbn(book.getIsbn())
-		                             .title(book.getTitle())
-		                             .author(book.getAuthor())
-		                             .publisher(book.getPublisher())
-		                             .publicationYear(book.getPublicationYear())
-		                             .genre(book.getGenre())
-		                             .pageCount(book.getPageCount())
-		                             .price(book.getPrice())
-		                             .stockQuantity(book.getStockQuantity())
-		                             .build();
+		final BookEntity entity = _bookMapper.toEntity(dto);
 
-		BookRepository.BOOKS.put(id, createdBook);
-		return createdBook;
+		resolveRelations(entity, dto);
+
+		return _bookMapper.toDto(_bookRepository.save(entity));
 	}
 
-	public Optional<Book> updateBook(final Long id, final Book book)
+	public BookDto updateBook(final Long id, final BookRequestDto dto)
 	{
-		if (!BookRepository.BOOKS.containsKey(id))
+		final BookEntity existing = _bookRepository.findById(id)
+		                                           .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
+
+		existing.setIsbn(dto.getIsbn());
+		existing.setTitle(dto.getTitle());
+		existing.setPublicationYear(dto.getPublicationYear());
+		existing.setPrice(dto.getPrice());
+		existing.setStockQuantity(dto.getStockQuantity());
+		existing.setDescription(dto.getDescription());
+
+		resolveRelations(existing, dto);
+
+		return _bookMapper.toDto(_bookRepository.save(existing));
+	}
+
+	public void deleteBook(final Long id)
+	{
+		if (!_bookRepository.existsById(id))
 		{
-			return Optional.empty();
+			throw new ResourceNotFoundException("Book not found with id: " + id);
 		}
 
-		final Book updatedBook = Book.builder()
-		                             .id(id)
-		                             .isbn(book.getIsbn())
-		                             .title(book.getTitle())
-		                             .author(book.getAuthor())
-		                             .publisher(book.getPublisher())
-		                             .publicationYear(book.getPublicationYear())
-		                             .genre(book.getGenre())
-		                             .pageCount(book.getPageCount())
-		                             .price(book.getPrice())
-		                             .stockQuantity(book.getStockQuantity())
-		                             .build();
-
-		BookRepository.BOOKS.put(id, updatedBook);
-		return Optional.of(updatedBook);
+		_bookRepository.deleteById(id);
 	}
 
-	public boolean deleteBook(final Long id)
+	private void resolveRelations(final BookEntity entity, final BookRequestDto dto)
 	{
-		return BookRepository.BOOKS.remove(id) != null;
+		if (dto.getPublisherId() != null)
+		{
+			final PublisherEntity publisher = _publisherRepository.findById(dto.getPublisherId())
+			                                                      .orElseThrow(() -> new ResourceNotFoundException("Publisher not found with id: " + dto.getPublisherId()));
+			entity.setPublisher(publisher);
+		}
+
+		if (dto.getAuthorIds() != null)
+		{
+			final Set<AuthorEntity> authors = new HashSet<>();
+			for (final Long authorId : dto.getAuthorIds())
+			{
+				final AuthorEntity author = _authorRepository.findById(authorId)
+				                                             .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + authorId));
+				authors.add(author);
+			}
+			entity.setAuthors(authors);
+		}
+
+		if (dto.getCategoryIds() != null)
+		{
+			final Set<CategoryEntity> categories = new HashSet<>();
+			for (final Long categoryId : dto.getCategoryIds())
+			{
+				final CategoryEntity category = _categoryRepository.findById(categoryId)
+				                                                   .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+				categories.add(category);
+			}
+			entity.setCategories(categories);
+		}
 	}
 }
