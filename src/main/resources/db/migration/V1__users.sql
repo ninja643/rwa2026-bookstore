@@ -18,16 +18,15 @@ CREATE TABLE permissions
 -- USERS
 CREATE TABLE users
 (
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    first_name        VARCHAR(100),
-    last_name         VARCHAR(100),
-    email             VARCHAR(150) NOT NULL UNIQUE,
-    password          VARCHAR(255) NOT NULL,
-    username          VARCHAR(100) NOT NULL UNIQUE,
-    phone             VARCHAR(50),
-    registration_date DATETIME     NOT NULL,
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name  VARCHAR(100),
+    email      VARCHAR(150) NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+    username   VARCHAR(100) NOT NULL UNIQUE,
+    phone      VARCHAR(50),
 
-    created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -57,7 +58,4 @@ public class UserEntity
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<AddressEntity> addresses = new ArrayList<>();
-
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-	private CartEntity cart;
 }

@@ -18,12 +18,15 @@ CREATE TABLE publishers
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- CATEGORIES
+-- CATEGORIES (self-referencing for hierarchy)
 CREATE TABLE categories
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(100) NOT NULL,
-    description TEXT
+    description TEXT,
+    parent_id   BIGINT,
+
+    CONSTRAINT fk_category_parent FOREIGN KEY (parent_id) REFERENCES categories (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -49,11 +52,11 @@ CREATE TABLE books
 -- BOOK_AUTHORS (M:N)
 CREATE TABLE book_authors
 (
-    book_id   BIGINT,
-    author_id BIGINT,
+    book_id   BIGINT NOT NULL,
+    author_id BIGINT NOT NULL,
 
     PRIMARY KEY (book_id, author_id),
-    CONSTRAINT fk_ba_book FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE,
+    CONSTRAINT fk_ba_book   FOREIGN KEY (book_id)   REFERENCES books (id)   ON DELETE CASCADE,
     CONSTRAINT fk_ba_author FOREIGN KEY (author_id) REFERENCES authors (id) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -61,11 +64,11 @@ CREATE TABLE book_authors
 -- BOOK_CATEGORIES (M:N)
 CREATE TABLE book_categories
 (
-    book_id     BIGINT,
-    category_id BIGINT,
+    book_id     BIGINT NOT NULL,
+    category_id BIGINT NOT NULL,
 
     PRIMARY KEY (book_id, category_id),
-    CONSTRAINT fk_bc_book FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE,
+    CONSTRAINT fk_bc_book     FOREIGN KEY (book_id)     REFERENCES books (id)      ON DELETE CASCADE,
     CONSTRAINT fk_bc_category FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -82,19 +85,31 @@ CREATE TABLE book_images
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- INVENTORY_LOGS
+-- INVENTORY_LOGS (immutable audit log — no updated_at)
 CREATE TABLE inventory_logs
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     book_id       BIGINT    NOT NULL,
     change_amount INT       NOT NULL,
     reason        VARCHAR(255),
-    change_date   TIMESTAMP NOT NULL,
 
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_inventory_logs_book FOREIGN KEY (book_id) REFERENCES books (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+-- ADDRESSES (linked to owner user)
+CREATE TABLE addresses
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id     BIGINT,
+    street      VARCHAR(255),
+    city        VARCHAR(100),
+    postal_code VARCHAR(20),
+    country     VARCHAR(100),
+
+    CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -109,7 +124,7 @@ CREATE TABLE carts
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- CART_ITEMS
+-- CART_ITEMS (unique per book per cart)
 CREATE TABLE cart_items
 (
     id       BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -117,36 +132,25 @@ CREATE TABLE cart_items
     book_id  BIGINT NOT NULL,
     quantity INT    NOT NULL,
 
-    CONSTRAINT fk_cart_items_cart FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE CASCADE,
-    CONSTRAINT fk_cart_items_book FOREIGN KEY (book_id) REFERENCES books (id)
+    CONSTRAINT uq_cart_item_book    UNIQUE (cart_id, book_id),
+    CONSTRAINT fk_cart_items_cart   FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE CASCADE,
+    CONSTRAINT fk_cart_items_book   FOREIGN KEY (book_id) REFERENCES books (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- ADDRESSES
-CREATE TABLE addresses
-(
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    street      VARCHAR(255),
-    city        VARCHAR(100),
-    postal_code VARCHAR(20),
-    country     VARCHAR(100)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
-
--- ORDERS
+-- ORDERS (order_date replaced by created_at)
 CREATE TABLE orders
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id     BIGINT   NOT NULL,
-    address_id  BIGINT   NOT NULL,
-    order_date  TIMESTAMP NOT NULL,
+    user_id     BIGINT         NOT NULL,
+    address_id  BIGINT         NOT NULL,
     status      VARCHAR(50),
-    total_price DECIMAL(10, 2),
+    total_price DECIMAL(10, 2) NOT NULL,
 
-    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_orders_user    FOREIGN KEY (user_id)    REFERENCES users (id),
     CONSTRAINT fk_orders_address FOREIGN KEY (address_id) REFERENCES addresses (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -161,7 +165,7 @@ CREATE TABLE order_items
     price_at_purchase DECIMAL(10, 2) NOT NULL,
 
     CONSTRAINT fk_oi_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
-    CONSTRAINT fk_oi_book FOREIGN KEY (book_id) REFERENCES books (id)
+    CONSTRAINT fk_oi_book  FOREIGN KEY (book_id)  REFERENCES books (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -169,11 +173,11 @@ CREATE TABLE order_items
 CREATE TABLE payments
 (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    order_id       BIGINT   NOT NULL,
+    order_id       BIGINT         NOT NULL,
     payment_method VARCHAR(50),
     status         VARCHAR(50),
     payment_date   TIMESTAMP,
-    amount         DECIMAL(10, 2),
+    amount         DECIMAL(10, 2) NOT NULL,
 
     CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders (id)
 ) ENGINE = InnoDB
@@ -187,33 +191,37 @@ CREATE TABLE coupons
     discount_value DECIMAL(10, 2),
     discount_type  VARCHAR(20),
     valid_from     TIMESTAMP,
-    valid_to       TIMESTAMP
+    valid_to       TIMESTAMP,
+    usage_limit    INT,
+    usage_count    INT     NOT NULL DEFAULT 0,
+    is_active      BOOLEAN NOT NULL DEFAULT TRUE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 -- ORDER_COUPONS (M:N)
 CREATE TABLE order_coupons
 (
-    order_id   BIGINT,
-    coupon_id  BIGINT,
+    order_id  BIGINT NOT NULL,
+    coupon_id BIGINT NOT NULL,
 
     PRIMARY KEY (order_id, coupon_id),
-    CONSTRAINT fk_oc_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_oc_order  FOREIGN KEY (order_id)  REFERENCES orders (id)  ON DELETE CASCADE,
     CONSTRAINT fk_oc_coupon FOREIGN KEY (coupon_id) REFERENCES coupons (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- REVIEWS
+-- REVIEWS (one review per user per book)
 CREATE TABLE reviews
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id     BIGINT   NOT NULL,
-    book_id     BIGINT   NOT NULL,
-    rating      INT      NOT NULL,
+    user_id     BIGINT    NOT NULL,
+    book_id     BIGINT    NOT NULL,
+    rating      INT       NOT NULL,
     comment     TEXT,
-    review_date TIMESTAMP,
+    review_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users (id),
-    CONSTRAINT fk_reviews_book FOREIGN KEY (book_id) REFERENCES books (id)
+    CONSTRAINT uq_review_user_book UNIQUE (user_id, book_id),
+    CONSTRAINT fk_reviews_user     FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_reviews_book     FOREIGN KEY (book_id) REFERENCES books (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
