@@ -10,5 +10,6 @@ import java.time.OffsetDateTime;
 public class ErrorDto
 {
 	String message;
+	String path;
 	OffsetDateTime timestamp;
 }

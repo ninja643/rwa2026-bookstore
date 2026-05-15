@@ -1,25 +1,77 @@
 package rs.ac.ni.pmf.rwa.bookstore.config;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import rs.ac.ni.pmf.rwa.bookstore.security.JwtAuthenticationFilter;
+import rs.ac.ni.pmf.rwa.bookstore.security.JwtTokenUtil;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @EnableWebSecurity
-@Slf4j
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig
 {
+	private final JwtTokenUtil _jwtTokenUtil;
+	private final UserDetailsService _userDetailsService;
+	private final JsonMapper _jsonMapper;
+
+	@Bean
+	public PasswordEncoder passwordEncoder()
+	{
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AuthenticationManager authenticationManager(final AuthenticationConfiguration configuration)
+	{
+		return configuration.getAuthenticationManager();
+	}
+	
+//	@Bean
+//	public AuthenticationEntryPoint authenticationEntryPoint()
+//	{
+//		return new RestAuthenticationEntryPoint(_jsonMapper);
+//	}
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(final HttpSecurity http)
 	{
-		log.info("Configuring security filter chain");
 		return http
-				.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-				.httpBasic(Customizer.withDefaults())
+				.csrf(AbstractHttpConfigurer::disable)
+				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//				.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/api/v1/auth/login").permitAll()
+						.requestMatchers("/api/v1/auth/refresh").permitAll()
+						.requestMatchers("/api/v1/**").authenticated()
+						.requestMatchers(
+								"/",
+								"/index.html",
+								"/assets/**",
+								"/*.js",
+								"/*.css",
+								"/favicon.ico"
+						).permitAll()
+						.anyRequest().permitAll()
+				)
+				.addFilterBefore(new JwtAuthenticationFilter(
+										 _jwtTokenUtil,
+						                 _userDetailsService),
+				                 UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
 }

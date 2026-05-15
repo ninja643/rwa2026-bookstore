@@ -568,6 +568,41 @@ Refresh token traje duže:
 
 Koristi se za izdavanje novog access tokena.
 
+Za refresh token je standardnije da bude stateful, tj. da server ipak čuva nešto o njemu:
+- token hash
+- user id
+- expiresAt
+- revoked
+- createdAt
+- replacedByToken / rotation info
+
+Razlog je jednostavan: refresh token traje duže i služi za dobijanje novih access tokena. Ako ga neko ukrade, mora da postoji način da se opozove.
+
+Praktičan standard:
+
+Access token:
+- JWT
+- kratak život: npr. 5–15 minuta
+- ne čuva se u bazi
+
+Refresh token:
+- dugačak random string, ne mora biti JWT
+- čuva se samo hash u bazi
+- važi npr. 7, 14 ili 30 dana
+- može da se opozove
+- rotira se pri svakom refresh-u
+
+Refresh endpoint/servis radi sledeće:
+POST /auth/refresh
+1. primi refresh token
+2. izračuna hash
+3. nađe token u bazi
+4. proveri: nije istekao, nije opozvan
+5. izda novi access token
+6. opciono izda novi refresh token
+7. stari refresh token označi kao revoked/replaced
+
+
 ---
 
 # Prednosti JWT-a

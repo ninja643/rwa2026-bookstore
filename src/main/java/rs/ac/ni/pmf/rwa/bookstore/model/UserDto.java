@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.util.Collections;
+import java.util.Set;
+
 @Value
 @Builder
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
@@ -22,4 +25,24 @@ public class UserDto
 
 	@Pattern(regexp = "^$|.*\\S.*", message = "Must not be blank if provided")
 	String phoneNumber;
+
+	@Builder.Default
+	boolean enabled = true;
+	@Builder.Default
+	boolean expired = false;
+
+	@Builder.Default
+	boolean locked = false;
+
+	@Builder.Default
+	boolean credentialsExpired = false;
+
+	@Builder.Default
+	boolean shouldChangePassword = false;
+
+	@Builder.Default
+	Set<String> roles = Collections.emptySet();
+
+	@Builder.Default
+	Set<String> permissions = Collections.emptySet();
 }
