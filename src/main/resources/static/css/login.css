@@ -1,0 +1,167 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1d2671, #c33764);
+    min-height: 100vh;
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 360px;
+    padding: 36px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.6s ease;
+}
+
+.logo {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+h1 {
+    margin: 0;
+    text-align: center;
+    color: #222;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #1d2671;
+    box-shadow: 0 0 0 3px rgba(29, 38, 113, 0.15);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #1d2671;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+}
+
+button:hover {
+    background: #151c55;
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: 0.75;
+    cursor: wait;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.message.error {
+    background: #fdecea;
+    color: #b00020;
+    border: 1px solid #f5c2c7;
+}
+
+.message.success {
+    background: #e8f5e9;
+    color: #1b5e20;
+    border: 1px solid #b7dfb9;
+}
+
+.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.logout-button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #b00020;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: #8a0018;
+}

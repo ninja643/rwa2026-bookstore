@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korisnici</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        .loading,
+        .error {
+            padding: 16px;
+            background-color: white;
+            border-radius: 6px;
+        }
+
+        .error {
+            color: #b00020;
+        }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <form method="post" action="/logout">
+        <button type="submit" class="logout-button">
+            Logout
+        </button>
+    </form>
+</div>
+
+<h1>Korisnici</h1>
+
+<div id="status" class="loading">
+    Učitavanje korisnika...
+</div>
+
+<table id="usersTable" hidden>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Ime</th>
+        <th>Prezime</th>
+        <th>Email</th>
+        <th>Telefon</th>
+    </tr>
+    </thead>
+
+    <tbody id="usersBody">
+    </tbody>
+</table>
+
+<script>
+    async function loadUsers() {
+        const status = document.getElementById('status');
+        const table = document.getElementById('usersTable');
+        const body = document.getElementById('usersBody');
+
+        try {
+            const response = await fetch('/api/v1/users');
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const users = await response.json();
+
+            body.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${user.id ?? ''}</td>
+                    <td>${user.username ?? ''}</td>
+                    <td>${user.firstName ?? ''}</td>
+                    <td>${user.lastName ?? ''}</td>
+                    <td>${user.email ?? ''}</td>
+                    <td>${user.phoneNumber ?? ''}</td>
+                `;
+
+                body.appendChild(row);
+            });
+
+            status.hidden = true;
+            table.hidden = false;
+        }
+        catch (e) {
+            status.className = 'error';
+            status.textContent = 'Greška prilikom učitavanja korisnika.';
+        }
+    }
+
+    loadUsers();
+</script>
+
+</body>
+</html>
