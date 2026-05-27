@@ -13,10 +13,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import rs.ac.ni.pmf.rwa.bookstore.security.JwtAuthenticationFilter;
 import rs.ac.ni.pmf.rwa.bookstore.security.JwtTokenUtil;
+import rs.ac.ni.pmf.rwa.bookstore.security.RestAuthenticationEntryPoint;
 import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
@@ -41,11 +43,11 @@ public class SecurityConfig
 		return configuration.getAuthenticationManager();
 	}
 	
-//	@Bean
-//	public AuthenticationEntryPoint authenticationEntryPoint()
-//	{
-//		return new RestAuthenticationEntryPoint(_jsonMapper);
-//	}
+	@Bean
+	public AuthenticationEntryPoint authenticationEntryPoint()
+	{
+		return new RestAuthenticationEntryPoint(_jsonMapper);
+	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(final HttpSecurity http)
@@ -53,7 +55,7 @@ public class SecurityConfig
 		return http
 				.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//				.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
+				.exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint()))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/v1/auth/login").permitAll()
 						.requestMatchers("/api/v1/auth/refresh").permitAll()

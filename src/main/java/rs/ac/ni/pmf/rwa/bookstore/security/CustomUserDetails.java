@@ -6,19 +6,21 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.PermissionEntity;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.RoleEntity;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.UserEntity;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails
 {
-	private final UserEntity _userEntity;
+	private final Long _id;
+	private final String _firstName;
+	private final String _lastName;
+	private final String _username;
+	private final String _password;
+	private final Set<String> _roles;
+	private final Set<String> _permissions;
 
 	@Override
 	@NullMarked
@@ -26,19 +28,14 @@ public class CustomUserDetails implements UserDetails
 	{
 		final Set<GrantedAuthority> authorities = new HashSet<>();
 
-		final Set<RoleEntity> roles = _userEntity.getRoles();
+		_roles.stream()
+		      .map(role -> "ROLE_" + role)
+		      .map(SimpleGrantedAuthority::new)
+		      .forEach(authorities::add);
 
-		roles.stream()
-				.map(role -> "ROLE_" + role.getName())
-				.map(SimpleGrantedAuthority::new)
-				.forEach(authorities::add);
-
-		roles.stream()
-				.flatMap(role -> role.getPermissions().stream())
-				.distinct()
-				.map(PermissionEntity::getName)
-				.map(SimpleGrantedAuthority::new)
-				.forEach(authorities::add);
+		_permissions.stream()
+		            .map(SimpleGrantedAuthority::new)
+		            .forEach(authorities::add);
 
 		return authorities;
 	}
@@ -46,24 +43,24 @@ public class CustomUserDetails implements UserDetails
 	@Override
 	public @Nullable String getPassword()
 	{
-		return _userEntity.getPassword();
+		return _password;
 	}
 
 	@Override
 	@NullMarked
 	public String getUsername()
 	{
-		return _userEntity.getUsername();
+		return _username;
 	}
 
 	public String getFirstName()
 	{
-		return _userEntity.getFirstName();
+		return _firstName;
 	}
 
 	public String getLastName()
 	{
-		return _userEntity.getLastName();
+		return _lastName;
 	}
 
 	@Override
@@ -96,22 +93,17 @@ public class CustomUserDetails implements UserDetails
 
 	public Set<String> getRoles()
 	{
-		return _userEntity.getRoles().stream()
-				.map(role -> "ROLE_" + role.getName())
-				.collect(Collectors.toSet());
+		return _roles;
 	}
 
 	public Set<String> getPermissions()
 	{
-		return _userEntity.getRoles().stream()
-				.flatMap(role -> role.getPermissions().stream())
-				.map(PermissionEntity::getName)
-				.collect(Collectors.toSet());
+		return _permissions;
 	}
 
 	public Long getId()
 	{
-		return _userEntity.getId();
+		return _id;
 	}
 
 	public boolean shouldChangePassword()

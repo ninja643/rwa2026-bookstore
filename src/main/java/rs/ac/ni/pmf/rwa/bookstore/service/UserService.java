@@ -2,6 +2,7 @@ package rs.ac.ni.pmf.rwa.bookstore.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rs.ac.ni.pmf.rwa.bookstore.mapper.UserMapper;
 import rs.ac.ni.pmf.rwa.bookstore.model.UserDto;
 import rs.ac.ni.pmf.rwa.bookstore.model.entity.UserEntity;
@@ -17,6 +18,7 @@ public class UserService
 	private final UserRepository _userRepository;
 	private final UserMapper _userMapper;
 
+	@Transactional(readOnly = true)
 	public List<UserDto> getAllUsers()
 	{
 		return _userRepository.findAll().stream()
@@ -24,6 +26,7 @@ public class UserService
 		                      .toList();
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<UserDto> getUserById(final Long id)
 	{
 		return _userRepository.findById(id)
@@ -44,6 +47,7 @@ public class UserService
 //		return createdUser;
 //	}
 
+	@Transactional
 	public Optional<UserDto> updateUser(final Long id, final UserDto user)
 	{
 		final Optional<UserEntity> optionalExistingUser = _userRepository.findById(id);
@@ -72,6 +76,7 @@ public class UserService
 		_userRepository.deleteById(id);
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<UserDto> getUserByUsername(final String username)
 	{
 		return _userRepository.findByUsername(username).map(_userMapper::toDto);
