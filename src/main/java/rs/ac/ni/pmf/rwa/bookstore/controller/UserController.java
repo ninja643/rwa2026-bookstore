@@ -2,6 +2,7 @@ package rs.ac.ni.pmf.rwa.bookstore.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,9 +24,26 @@ public class UserController
 		return _userService.getAllUsers();
 	}
 
+	// Loš primer! Keširanje se ne poziva!
+	@GetMapping("/search/{id}")
+	public UserDto searchUserById(@PathVariable final Long id)
+	{
+		return getUserById(id);
+	}
+
 	@GetMapping("/{id}")
+	@Cacheable("users")
 	public UserDto getUserById(@PathVariable final Long id)
 	{
+		try
+		{
+			Thread.sleep(5000);
+		}
+		catch (final InterruptedException e)
+		{
+			throw new RuntimeException(e);
+		}
+
 		return _userService.getUserById(id)
 		                   .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserDto not found"));
 	}
