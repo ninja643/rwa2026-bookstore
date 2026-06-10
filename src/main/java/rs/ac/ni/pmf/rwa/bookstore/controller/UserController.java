@@ -1,5 +1,6 @@
 package rs.ac.ni.pmf.rwa.bookstore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +20,7 @@ public class UserController
 	private final UserService _userService;
 
 	@GetMapping
+	@Operation(summary = "Spisak svih korisnika")
 	public List<UserDto> getAllUsers()
 	{
 		return _userService.getAllUsers();
