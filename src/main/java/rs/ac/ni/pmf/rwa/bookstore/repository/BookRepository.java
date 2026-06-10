@@ -6,7 +6,8 @@ import rs.ac.ni.pmf.rwa.bookstore.model.entity.BookEntity;
 
 import java.util.Optional;
 
-public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity>
+public interface BookRepository extends JpaRepository<BookEntity, Long>,
+		JpaSpecificationExecutor<BookEntity>
 {
 	Optional<BookEntity> findByIsbn(String isbn);
 }

@@ -1,24 +1,26 @@
 package rs.ac.ni.pmf.rwa.bookstore.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rs.ac.ni.pmf.rwa.bookstore.exception.ResourceNotFoundException;
 import rs.ac.ni.pmf.rwa.bookstore.mapper.BookMapper;
 import rs.ac.ni.pmf.rwa.bookstore.model.dto.BookDto;
 import rs.ac.ni.pmf.rwa.bookstore.model.dto.BookRequestDto;
 import rs.ac.ni.pmf.rwa.bookstore.model.dto.BookSummaryDto;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.AuthorEntity;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.BookEntity;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.CategoryEntity;
-import rs.ac.ni.pmf.rwa.bookstore.model.entity.PublisherEntity;
+import rs.ac.ni.pmf.rwa.bookstore.model.entity.*;
 import rs.ac.ni.pmf.rwa.bookstore.repository.AuthorRepository;
 import rs.ac.ni.pmf.rwa.bookstore.repository.BookRepository;
 import rs.ac.ni.pmf.rwa.bookstore.repository.CategoryRepository;
 import rs.ac.ni.pmf.rwa.bookstore.repository.PublisherRepository;
+import rs.ac.ni.pmf.rwa.bookstore.repository.specification.BookSpecifications;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,5 +114,19 @@ public class BookService
 			}
 			entity.setCategories(categories);
 		}
+	}
+
+	public List<BookSummaryDto> searchBooks(final String title, final String author)
+	{
+		final Pageable pageable = PageRequest.of(
+				0,
+				20,
+				Sort.by(BookEntity_.TITLE).ascending());
+
+		return _bookRepository
+				.findAll(BookSpecifications.search(title, author), pageable)
+				.stream()
+				.map(_bookMapper::toSummaryDto)
+				.collect(Collectors.toList());
 	}
 }

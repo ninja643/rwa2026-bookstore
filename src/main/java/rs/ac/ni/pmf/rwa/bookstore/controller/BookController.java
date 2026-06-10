@@ -24,6 +24,14 @@ public class BookController
 		return _bookService.getAllBooks();
 	}
 
+	@GetMapping("/search")
+	public List<BookSummaryDto> searchBooks(
+			@RequestParam(name = "title", required = false) final String title,
+			@RequestParam(name = "author", required = false) final String author)
+	{
+		return _bookService.searchBooks(title, author);
+	}
+
 	@GetMapping("/{id}")
 	public BookDto getBookById(@PathVariable final Long id)
 	{
