@@ -55,20 +55,25 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!--<dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-processor</artifactId>
             <version>7.4.0.Final</version>
             <scope>provided</scope>
-        </dependency>-->
+        </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>${hibernate.modelgen.version}</version>
             <type>pom</type>
             <scope>compile</scope>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -187,8 +192,10 @@
 									<artifactId>lombok</artifactId>
 								</path>
                                 <path>
-                                    <groupId>org.hibernate</groupId>
-                                    <artifactId>hibernate-jpamodelgen</artifactId>
+                                    <!--<groupId>org.hibernate</groupId>
+                                    <artifactId>hibernate-jpamodelgen</artifactId>-->
+                                    <groupId>org.hibernate.orm</groupId>
+                                    <artifactId>hibernate-processor</artifactId>
                                     <version>${hibernate.modelgen.version}</version>
                                 </path>
 							</annotationProcessorPaths>
